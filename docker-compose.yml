@@ -1,0 +1,27 @@
+version: '3'
+services:
+  env:
+    image: "golang:1.15"
+    links:
+      - dynamodb
+    environment:
+      - DEBUG=1
+      - PORT=8000
+      - DYNAMODB_ENDPOINT_URL=http://dynamodb:8000
+      - DYNAMODB_TABLE_NAME=hikidashi
+      - AWS_ACCESS_KEY_ID=dummy
+      - AWS_SECRET_ACCESS_KEY=dummy
+      - AWS_DEFAULT_REGION=ap-northeast-1
+    ports:
+      - ${LOCAL_PORT}:8000
+    working_dir: /opt/app
+    volumes:
+      - .:/opt/app
+    command: bash -c "go get github.com/pilu/fresh && fresh -c .fresh.conf"
+  dynamodb:
+    image: "tray/dynamodb-local"
+    command: -dbPath /var/lib/dynamodb -sharedDb -port 8000
+    volumes:
+      - dynamodb-volume:/var/lib/dynamodb
+volumes:
+  dynamodb-volume:
