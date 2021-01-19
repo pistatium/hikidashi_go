@@ -12,6 +12,7 @@ services:
       - AWS_ACCESS_KEY_ID=dummy
       - AWS_SECRET_ACCESS_KEY=dummy
       - AWS_DEFAULT_REGION=ap-northeast-1
+      - AWS_REGION=ap-northeast-1
     ports:
       - ${LOCAL_PORT}:8000
     working_dir: /opt/app

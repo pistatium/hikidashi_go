@@ -11,6 +11,7 @@ require (
 	github.com/guregu/dynamo v1.10.2
 	github.com/howeyc/fsnotify v0.9.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

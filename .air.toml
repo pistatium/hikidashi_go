@@ -2,7 +2,8 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-cmd = "go build ."
+cmd = "go build -o tmp/main ."
+bin = "tmp/main"
 include_ext = []
 exclude_dir = [".idea"]
 include_dir = []

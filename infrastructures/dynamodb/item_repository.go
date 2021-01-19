@@ -15,6 +15,14 @@ type ItemRepository struct {
 	db *dynamo.DB
 }
 
+func (i ItemRepository) Initialize(ctx context.Context, options interface{}) error {
+	input := i.db.CreateTable(ItemTableName, itemTable{}).
+		Provision(1, 1).
+		Project("Seq-index", dynamo.KeysOnlyProjection)
+	err := input.RunWithContext(ctx)
+	return err
+}
+
 func NewItemRepository(db *dynamo.DB) repositories.ItemRepository {
 	return &ItemRepository{
 		db: db,
@@ -23,11 +31,11 @@ func NewItemRepository(db *dynamo.DB) repositories.ItemRepository {
 
 func (i ItemRepository) GetFromPath(ctx context.Context, path string) (item *entities.Item, err error) {
 	table := i.db.Table(ItemTableName)
-	err = table.Get("Path", path).One(item)
+	err = table.Get("Path", path).OneWithContext(ctx, item)
 	return
 }
 
-func (i ItemRepository) Put(ctx context.Context, item entities.Item) (err error) {
+func (i ItemRepository) Put(ctx context.Context, item *entities.Item) (err error) {
 	group, groupPath := splitPath(item.Path)
 	it := itemTable{
 		Path:        item.Path,
@@ -38,12 +46,30 @@ func (i ItemRepository) Put(ctx context.Context, item entities.Item) (err error)
 		UpdatedAt:   time.Now(),
 	}
 	table := i.db.Table(ItemTableName)
-	err = table.Put(it).Run()
+	err = table.Put(it).RunWithContext(ctx)
 	return
 }
 
-func (i ItemRepository) List(ctx context.Context, directory string, nextCursor string) (items []entities.Item, err error) {
-	panic("implement me")
+func (i ItemRepository) List(ctx context.Context, directory string, nextCursor string) (items *[]entities.Item, err error) {
+	table := i.db.Table(ItemTableName)
+	tableItems := make([]itemTable, 0)
+	results := make([]entities.Item, 0)
+	if directory == "" {
+		err = table.Get("Group", directory).AllWithContext(ctx, tableItems)
+		if err != nil {
+			return
+		}
+		for _, ti := range tableItems {
+			results = append(results, entities.Item{
+				Path:        ti.Path,
+				Value:       ti.Value,
+				ContentType: ti.ContentType,
+			})
+		}
+	}
+	err = table.Scan().AllWithContext(ctx, items)
+	items = &results
+	return
 }
 
 func splitPath(path string) (group string, groupPath string) {
