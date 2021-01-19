@@ -17,7 +17,7 @@ services:
     working_dir: /opt/app
     volumes:
       - .:/opt/app
-    command: bash -c "go get github.com/pilu/fresh && fresh -c .fresh.conf"
+    command: bash -c "go get github.com/cosmtrek/air@b538c70423fb3590435c003dda15bf6a2f61187c && air"
   dynamodb:
     image: "tray/dynamodb-local"
     command: -dbPath /var/lib/dynamodb -sharedDb -port 8000

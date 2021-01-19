@@ -3,6 +3,8 @@ module github.com/pistatium/hikidashi_go
 go 1.13
 
 require (
+	github.com/aws/aws-sdk-go v1.35.17
+	github.com/cosmtrek/air v1.12.5-0.20200905080724-b538c70423fb // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/golang/protobuf v1.4.3 // indirect
