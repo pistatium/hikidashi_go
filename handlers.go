@@ -23,6 +23,7 @@ type ServerOptions struct {
 	initializationOptions interface{}
 	backend Backend
 	dynamodbEndpoint string
+	dynamodbItemTableName string
 }
 
 type Server struct {
@@ -40,7 +41,7 @@ func NewServer(ctx context.Context, opt ServerOptions) (*Server, error) {
 			return nil, err
 		}
 		db := dynamo.New(sess, &aws.Config{})
-		repo = dynamodb.NewItemRepository(db)
+		repo = dynamodb.NewItemRepository(db, opt.dynamodbItemTableName)
 	default:
 		return nil, fmt.Errorf("invalid backend: %v", opt.backend)
 	}

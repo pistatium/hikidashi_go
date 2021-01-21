@@ -15,9 +15,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	fmt.Printf("%+v", env)
 	opt := ServerOptions{
 		backend: DynamoDB,
 		dynamodbEndpoint: env.DynamodbEndpointUrl,
+		dynamodbItemTableName: env.DynamodbItemTableName,
 		doInitialize: env.RequireInitializeRepository,
 	}
 	s, err := NewServer(context.Background(), opt)

@@ -8,7 +8,7 @@ services:
       - DEBUG=1
       - PORT=8000
       - DYNAMODB_ENDPOINT_URL=http://dynamodb:8000
-      - DYNAMODB_TABLE_NAME=hikidashi
+      - REQUIRE_INITIALIZE_REPOSITORY=1
       - AWS_ACCESS_KEY_ID=dummy
       - AWS_SECRET_ACCESS_KEY=dummy
       - AWS_DEFAULT_REGION=ap-northeast-1
@@ -18,7 +18,7 @@ services:
     working_dir: /opt/app
     volumes:
       - .:/opt/app
-    command: bash -c "go get github.com/cosmtrek/air@b538c70423fb3590435c003dda15bf6a2f61187c && air"
+    command: bash -c "go run -mod=vendor ."
   dynamodb:
     image: "tray/dynamodb-local"
     command: -dbPath /var/lib/dynamodb -sharedDb -port 8000

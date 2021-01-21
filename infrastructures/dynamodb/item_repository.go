@@ -9,28 +9,27 @@ import (
 	"time"
 )
 
-const ItemTableName = "Items"
-
 type ItemRepository struct {
 	db *dynamo.DB
+	tableName string
 }
 
 func (i ItemRepository) Initialize(ctx context.Context, options interface{}) error {
-	input := i.db.CreateTable(ItemTableName, itemTable{}).
-		Provision(1, 1).
-		Project("Seq-index", dynamo.KeysOnlyProjection)
+	input := i.db.CreateTable(i.tableName, itemTable{}).
+		Provision(1, 1)
 	err := input.RunWithContext(ctx)
 	return err
 }
 
-func NewItemRepository(db *dynamo.DB) repositories.ItemRepository {
+func NewItemRepository(db *dynamo.DB, tableName string) repositories.ItemRepository {
 	return &ItemRepository{
 		db: db,
+		tableName: tableName,
 	}
 }
 
 func (i ItemRepository) GetFromPath(ctx context.Context, path string) (item *entities.Item, err error) {
-	table := i.db.Table(ItemTableName)
+	table := i.db.Table(i.tableName)
 	err = table.Get("Path", path).OneWithContext(ctx, item)
 	return
 }
@@ -45,13 +44,13 @@ func (i ItemRepository) Put(ctx context.Context, item *entities.Item) (err error
 		ContentType: item.ContentType,
 		UpdatedAt:   time.Now(),
 	}
-	table := i.db.Table(ItemTableName)
+	table := i.db.Table(i.tableName)
 	err = table.Put(it).RunWithContext(ctx)
 	return
 }
 
 func (i ItemRepository) List(ctx context.Context, directory string, nextCursor string) (items *[]entities.Item, err error) {
-	table := i.db.Table(ItemTableName)
+	table := i.db.Table(i.tableName)
 	tableItems := make([]itemTable, 0)
 	results := make([]entities.Item, 0)
 	if directory == "" {
