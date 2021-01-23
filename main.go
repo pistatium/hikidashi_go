@@ -33,6 +33,8 @@ func main() {
 	itemRouter := router.Group("/items")
 	{
 		itemRouter.POST("/:path", s.createItem)
+
+		itemRouter.GET("/:path", s.listItems)
 		itemRouter.GET("", s.listItems)
 	}
 

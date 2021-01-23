@@ -64,21 +64,24 @@ func (i ItemRepository) Put(ctx context.Context, item *entities.Item) (err error
 func (i ItemRepository) List(ctx context.Context, directory string, nextCursor string) (items *[]entities.Item, err error) {
 	table := i.db.Table(i.tableName)
 	tableItems := make([]itemTable, 0)
-	results := make([]entities.Item, 0)
-	if directory == "" {
+
+	if directory != "" {
 		err = table.Get("Group", directory).AllWithContext(ctx, tableItems)
 		if err != nil {
 			return
 		}
-		for _, ti := range tableItems {
-			results = append(results, entities.Item{
-				Path:        ti.Path,
-				Value:       ti.Value,
-				ContentType: ti.ContentType,
-			})
-		}
+	} else {
+		err = table.Scan().AllWithContext(ctx, &tableItems)
 	}
-	err = table.Scan().AllWithContext(ctx, items)
+
+	results := make([]entities.Item, 0)
+	for _, ti := range tableItems {
+		results = append(results, entities.Item{
+			Path:        ti.Path,
+			Value:       ti.Value,
+			ContentType: ti.ContentType,
+		})
+	}
 	items = &results
 	return
 }

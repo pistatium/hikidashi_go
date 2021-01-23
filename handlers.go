@@ -93,7 +93,8 @@ func (s *Server) createItem(ctx *gin.Context) {
 }
 
 func (s *Server) listItems(ctx *gin.Context) {
-	items, err := s.itemRepo.List(ctx, "", "")
+	path := ctx.Param("path")
+	items, err := s.itemRepo.List(ctx, path, "")
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf("%v", err),
