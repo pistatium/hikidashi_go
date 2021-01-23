@@ -2,6 +2,8 @@ package dynamodb
 
 import (
 	"context"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/guregu/dynamo"
 	"github.com/pistatium/hikidashi_go/entities"
 	"github.com/pistatium/hikidashi_go/repositories"
@@ -15,10 +17,20 @@ type ItemRepository struct {
 }
 
 func (i ItemRepository) Initialize(ctx context.Context, options interface{}) error {
-	input := i.db.CreateTable(i.tableName, itemTable{}).
-		Provision(1, 1)
-	err := input.RunWithContext(ctx)
-	return err
+	_, err := i.db.Table(i.tableName).Describe().RunWithContext(ctx)
+	if err == nil {
+		return nil
+	}
+	if awsErr, ok := err.(awserr.Error); ok {
+		if awsErr.Code() == dynamodb.ErrCodeResourceNotFoundException {
+			input := i.db.CreateTable(i.tableName, itemTable{}).
+				Provision(1, 1)
+			err = input.RunWithContext(ctx)
+			return err
+		}
+		return awsErr
+	}
+	return nil
 }
 
 func NewItemRepository(db *dynamo.DB, tableName string) repositories.ItemRepository {
